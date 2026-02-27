@@ -1,9 +1,7 @@
-FROM debian:bookworm-slim
+FROM debian:12
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y nginx openssl && \
+RUN apt update && apt upgrade -y && \
+    apt install -y nginx openssl && \
     rm -rf /var/lib/apt/lists/*
 
 # Generate SSL certificate
@@ -17,9 +15,8 @@ RUN mkdir -p /etc/ssl/private && \
 COPY conf/nginx.conf /etc/nginx/sites-available/default
 
 # Create web root and test file
-RUN mkdir -p /var/www/html && \
-    echo "<h1>NGINX is working!</h1>" > /var/www/html/index.html
+RUN mkdir -p /var/www/html
 
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
