@@ -1,5 +1,7 @@
 FROM debian:12
 
+ENV	DEBIAN_FRONTEND=noninteractive
+
 RUN apt update && apt upgrade -y
 
 RUN apt install -y \
@@ -15,10 +17,10 @@ RUN mkdir -p /var/www/html
 
 WORKDIR /var/www/html
 
-COPY entrypoint.sh /entrypoint.sh
+COPY tools/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 9000
 
-ENTRYPOINT ["/entrypoint.sh"] 
+ENTRYPOINT [ "/entrypoint.sh" ] 

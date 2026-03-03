@@ -24,6 +24,8 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - wordpress_data:/var/www/html
     networks:
@@ -50,6 +52,71 @@ services:
     networks:
       - inception
     restart: always
+  
+  redis:
+    build: ./requirements/bonus/redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - inception
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  ftp:
+    build: ./requirements/bonus/ftp
+    container_name: ftp
+    env_file:
+      - .env
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    restart: always
+
+  website:
+    build: ./requirements/bonus/website
+    container_name: website
+    ports:
+      - "80:80"
+    networks:
+      - inception
+    restart: always
+
+  adminer:
+    build: ./requirements/bonus/adminer
+    container_name: adminer
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - inception
+    restart: always
+
+  portainer:
+    build: ./requirements/bonus/portainer
+    container_name: portainer
+    ports:
+      - "8100:8100"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - inception
+    restart: always
 
 volumes:
   mariadb_data:
@@ -64,7 +131,12 @@ volumes:
       type: none
       o: bind
       device: /home/salahian/data/wordpress
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/salahian/data/portainer
 
 networks:
   inception:
-    driver: bridge
