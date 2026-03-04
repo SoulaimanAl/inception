@@ -30,7 +30,6 @@ clean:
 	sudo rm -rf $(WORDPRESS_PATH)
 	sudo rm -rf $(PORTAINER_PATH)
 
-
 fclean: clean
 	docker system prune -af
 	docker volume prune -f
